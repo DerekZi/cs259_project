@@ -1,0 +1,144 @@
+
+Below is a program with High Level Synthesis pragma inserted:
+
+
+#pragma ACCEL kernel
+
+void kernel_symm(double alpha,double beta,double C[60][80],double A[60][60],double B[60][80])
+{
+  int i;
+  int j;
+  int k;
+//BLAS PARAMS
+//SIDE = 'L'
+//UPLO = 'L'
+// =>  Form  C := alpha*A*B + beta*C
+// A is MxM
+// B is MxN
+// C is MxN
+//note that due to Fortran array layout, the code below more closely resembles upper triangular case in BLAS
+  
+#pragma ACCEL PIPELINE auto{__PIPE__L0}
+  
+#pragma ACCEL TILE FACTOR=auto{__TILE__L0}
+  
+#pragma ACCEL PARALLEL FACTOR=auto{__PARA__L0}
+  for (i = 0; i < 60; i++) {
+    
+#pragma ACCEL PIPELINE auto{__PIPE__L1}
+    
+#pragma ACCEL TILE FACTOR=auto{__TILE__L1}
+    
+#pragma ACCEL PARALLEL FACTOR=auto{__PARA__L1}
+    for (j = 0; j < 80; j++) {
+      double temp2 = ((double )0);
+      
+#pragma ACCEL PARALLEL reduction=temp2 FACTOR=auto{__PARA__L2}
+      for (k = 0; k < 60; k++) {
+        if (k < i) {
+          C[k][j] += alpha * B[i][j] * A[i][k];
+          temp2 += B[k][j] * A[i][k];
+        }
+      }
+      C[i][j] = beta * C[i][j] + alpha * B[i][j] * A[i][i] + alpha * temp2;
+    }
+  }
+}
+Based on the example above, act as an expert in High Level Synthesis and apply High Level Synthesis(HLS) pragmas to the following program. Reason for your choice of HLS pragmas:
+
+
+
+void bbgemm(double m1[4096],double m2[4096],double prod[4096])
+
+{
+
+  int i;
+
+  int k;
+
+  int j;
+
+  int jj;
+
+  int kk;
+
+  int i_row;
+
+  int k_row;
+
+  double temp_x;
+
+  double mul;
+
+  
+
+  
+
+  loopjj:
+
+/* Standardize from: for(jj = 0;jj < 64;jj += 8) {...} */
+
+  for (jj = 0; jj <= 7; jj++) {
+
+    int _in_jj = 0 + 8L * jj;
+
+    
+
+    
+
+    loopkk:
+
+/* Standardize from: for(kk = 0;kk < 64;kk += 8) {...} */
+
+    for (kk = 0; kk <= 7; kk++) {
+
+      int _in_kk = 0 + 8L * kk;
+
+      
+
+      
+
+      
+
+      loopi:
+
+      for (i = 0; i < 64; ++i) {
+
+        
+
+        
+
+        loopk:
+
+        for (k = 0; k < 8; ++k) {
+
+          i_row = i * 64;
+
+          k_row = (k + _in_kk) * 64;
+
+          temp_x = m1[i_row + k + _in_kk];
+
+          loopj:
+
+          for (j = 0; j < 8; ++j) {
+
+            mul = temp_x * m2[k_row + j + _in_jj];
+
+            prod[i_row + j + _in_jj] += mul;
+
+          }
+
+        }
+
+      }
+
+    }
+
+    kk = 56 + 8L;
+
+  }
+
+  jj = 56 + 8L;
+
+}
+
