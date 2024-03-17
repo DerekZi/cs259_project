@@ -1,0 +1,19 @@
+Output:
+#pragma ACCEL kernel
+
+void trmm(const float alpha, const float A[60*60], float B[60*80])
+{
+  int i;
+  int j;
+  for (i = 0; i < 60; i++) {
+    for (j = 0; j < 80; j++) {
+      for (int k = 0; k < 60; k++) {
+        if (k > i) {
+          B[i*R+j] += A[k*R+i] * B[k*R+j];
+        }
+      }
+      B[i*R+j] = alpha * B[i*R+j];
+    }
+  }
+}
+<|endoftext|>

@@ -1,0 +1,4 @@
+Output:
+#pragma ACCEL kernel
+
+void vadd(const
