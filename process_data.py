@@ -1,15 +1,21 @@
 if __name__ == "__main__":
     dirname = 'data'
     filenames = [
-        '2mm_kernel.c', 'bicg_kernel.c', 'covariance_kernel.c',
-        'gemm-blocked_kernel.c', 'gemm-p_kernel.c', 'gemm-p-large_kernel.c',
-        'jacobi-1d_kernel.c', 'symm-opt_kernel.c', 'trmm_kernel.c',
-        'trmm-opt_kernel.c'
+        'mm-krnl.cpp',
+        'dotprod-krnl2.cpp',
+        'dotprod-krnl.cpp',
+        'ewmm-krnl.cpp',
+        'jacobi_1d-krnl.cpp',
+        'madd-krnl.cpp',
+        'syrk-krnl.cpp',
+        'trmm-krnl.cpp',
+        'trmm-opt-krnl.cpp',
+        'vadd-krnl.cpp'
     ]
 
     for file in filenames:
-        with open(f'./{dirname}/{file}', 'r') as f:
+        with open(f'{file}', 'r') as f:
             lines = f.readlines()
-        lines = [line for line in lines if not line.startswith('#pragma')]
-        with open(f'{dirname}/processed-{file}', 'w') as f:
+        lines = [line for line in lines if '#pragma' not in line]
+        with open(f'processed-{file}', 'w') as f:
             f.writelines(lines)
